@@ -8,7 +8,7 @@ db.serialize(() => {
     name TEXT NOT NULL,
     position TEXT NOT NULL,
     wage INTEGER NOT NULL,
-    is_currently_employed INTEGER DEFAULT 1
+    is_current_employee INTEGER DEFAULT 1
   );`);
   db.run(`CREATE TABLE IF NOT EXISTS Timesheet (
     id INTEGER PRIMARY KEY,
@@ -21,7 +21,7 @@ db.serialize(() => {
   db.run(`CREATE TABLE IF NOT EXISTS Menu (
     id INTEGER PRIMARY KEY,
     title TEXT NOT NULL
-  )`);
+  );`);
   db.run(`CREATE TABLE IF NOT EXISTS MenuItem (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
