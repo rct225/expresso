@@ -18,3 +18,34 @@ timesheetsRouter.get('/', (req, res, next) => {
       }
     });
 });
+
+timesheetsRouter.post('/', (req, res, next) => {
+  const hours = req.body.timesheet.hours;
+  const rate = req.body.timesheet.rate;
+  const date = req.body.timesheet.date;
+  const employeeId = req.employee.id;
+
+  const timesheetSql = 'INSERT INTO Timesheet (hours, rate, date, employee_id) ' +
+                       'VALUES ($hours, $rate, $date, $employeeId)';
+  const timesheetVals = {
+    $hours: hours,
+    $rate: rate,
+    $date: date,
+    $employeeId: employeeId
+  };
+
+  if (!hours || !rate || !date || !employeeId) {
+    return res.status(400).send();
+  }
+
+  db.run(timesheetSql, timesheetVals, function(error) {
+    if (error) {
+      next(error);
+    } else {
+      db.get(`SELECT * FROM Timesheet WHERE Timesheet.id = ${this.lastID}`,
+               (error, timesheet) => {
+                 res.status(201).json({timesheet: timesheet});
+               });
+    }
+  });
+});
