@@ -7,6 +7,17 @@ module.exports = menuItemsRouter;
 const sqlite3 = require('sqlite3');
 const db = new sqlite3.Database(process.env.TEST_DATABASE || './database.sqlite');
 
+menuItemsRouter.param('menuItemId', (req, res, next, menuItemId) => {
+  db.get('SELECT * FROM employee WHERE id=$id', { $id: menuItemId }, (error, menuItem) => {
+    if (menuItem) {
+      req.menuItem = menuItem;
+      next();
+    } else {
+      res.status(404).send();
+    }
+  });
+});
+
 menuItemsRouter.get('/', (req, res, next) => {
   db.all('SELECT * from MenuItem where menu_id = $menuId',
     { $menuId: req.menu.id },
@@ -23,7 +34,7 @@ menuItemsRouter.post('/', (req, res, next) => {
   const name = req.body.menuItem.name;
   const description = req.body.menuItem.description;
   const inventory = req.body.menuItem.inventory;
-  const price = req.body.menuItem.pice;
+  const price = req.body.menuItem.price;
   const menuId = req.menu.id;
 
   if (!name || !description || !inventory || !price || !menuId) {
@@ -53,4 +64,54 @@ menuItemsRouter.post('/', (req, res, next) => {
           }
         });
     }
+});
+
+menuItemsRouter.put('/:menuItemId', (req, res, next) => {
+  const name = req.body.menuItem.name;
+  const description = req.body.menuItem.description;
+  const inventory = req.body.menuItem.inventory;
+  const price = req.body.menuItem.pice;
+  const menuId = req.menu.id;
+
+  if (!name || !description || !inventory || !price || !menuId) {
+    res.status(400).send();
+  } else {
+    const menuItemsSql = 'UPDATE MenuItem name = $name, description = $description, ' +
+                         'inventory = $inventory, price = $price, ' +
+                         'menu_id = $menuId) WHERE id = $menuItemId';
+
+    const menuItemsVals = {
+      $name: name,
+      $description: description,
+      $inventory: inventory,
+      $price: price,
+      $menuId: menuId,
+      $menuItemId: req.menuItem.id
+    };
+
+    db.run(menuItemsSql, menuItemsVals,
+        function (error) {
+          if (error) {
+            next(error);
+          } else {
+            db.get(`SELECT * from MenuItem where MenuItem.id = ${req.menuItem.id}`,
+              (error, menuItem) => {
+                console.log(menuItem);
+                res.status(201).json({menuItem: menuItem});
+              });
+          }
+        });
+    }
+});
+
+menuItemsRouter.delete('/:menuItemId', (req, res, next) => {
+  db.run('DELETE FROM MenuItem WHERE MenuItem.id = $menuItemId',
+    { $menuItemId: req.menuItem.id},
+    (error) => {
+      if (error) {
+        next(error);
+      } else {
+        res.status(204).send();
+      }
+    });
 });

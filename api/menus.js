@@ -94,7 +94,7 @@ menusRouter.put('/:menuId', (req, res, next) => {
 });
 
 menusRouter.delete('/:menuId', (req, res, next) => {
-  db.get('SELECT * from MenuItem where menu_id = $menuId',
+  db.get('SELECT * FROM MenuItem WHERE menu_id = $menuId',
     { $menuId: req.params.menuId },
     (error, menuItem) => {
       if (error) {
@@ -103,7 +103,7 @@ menusRouter.delete('/:menuId', (req, res, next) => {
         res.status(400).send();
       } else {
         db.run('DELETE from Menu where id = $menuId',
-          { $menuId: req.params.menuId },
+          { $menuId: req.menu.id },
           (error) => {
             if (error) {
               next(error);
