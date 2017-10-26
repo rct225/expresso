@@ -13,7 +13,7 @@ menusRouter.use('/:menuId/menuItems', menuItemsRouter);
 menusRouter.param('menuId', (req, res, next, menuId) => {
   db.get('SELECT * FROM Menu WHERE Menu.id=$id', { $id: menuId }, (error, menu) => {
     if (menu) {
-      req.employee = menu;
+      req.menu = menu;
       next();
     } else {
       res.status(404).send();
@@ -49,10 +49,21 @@ menusRouter.post('/', (req, res, next) => {
             if (error) {
               next(error);
             } else {
-              res.status(201).json({ menu: menu});
+              res.status(201).json({ menu: menu });
             }
           });
       }
     });
+});
 
+menusRouter.get('/:menuId', (req, res, next) => {
+  db.get('SELECT * from Menu where Menu.id = $menuId',
+    {$menuId: req.menu.id },
+    (error, menu) => {
+      if (error) {
+        next(error);
+      } else {
+        res.status(200).json({ menu: menu });
+      }
+    });
 });
