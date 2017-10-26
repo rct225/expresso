@@ -49,7 +49,7 @@ menusRouter.post('/', (req, res, next) => {
             if (error) {
               next(error);
             } else {
-              res.status(201).json({ menu: menu });
+              res.status(201).json({menu: menu});
             }
           });
       }
@@ -95,7 +95,7 @@ menusRouter.put('/:menuId', (req, res, next) => {
 
 menusRouter.delete('/:menuId', (req, res, next) => {
   db.get('SELECT * from MenuItem where menu_id = $menuId',
-    { $menuId: req.menu.id },
+    { $menuId: req.params.menuId },
     (error, menuItem) => {
       if (error) {
         next(error);
@@ -103,7 +103,7 @@ menusRouter.delete('/:menuId', (req, res, next) => {
         res.status(400).send();
       } else {
         db.run('DELETE from Menu where id = $menuId',
-          { $menuId: req.menu.id },
+          { $menuId: req.params.menuId },
           (error) => {
             if (error) {
               next(error);
@@ -111,6 +111,6 @@ menusRouter.delete('/:menuId', (req, res, next) => {
               res.status(204).send();
             }
           });
-      }
+        }
     });
 });
