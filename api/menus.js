@@ -8,7 +8,7 @@ const sqlite3 = require('sqlite3');
 const db = new sqlite3.Database(process.env.TEST_DATABASE || './database.sqlite');
 
 const menuItemsRouter = require('./menuItems');
-menusRouter.use('/:menuId/menuItems', menuItemsRouter);
+menusRouter.use('/:menuId/menu-items', menuItemsRouter);
 
 menusRouter.param('menuId', (req, res, next, menuId) => {
   db.get('SELECT * FROM Menu WHERE Menu.id=$id', { $id: menuId }, (error, menu) => {
@@ -95,7 +95,7 @@ menusRouter.put('/:menuId', (req, res, next) => {
 
 menusRouter.delete('/:menuId', (req, res, next) => {
   db.get('SELECT * from MenuItem where menu_id = $menuId',
-    {$menuId: req.menu.id},
+    { $menuId: req.menu.id },
     (error, menuItem) => {
       if (error) {
         next(error);
@@ -103,7 +103,7 @@ menusRouter.delete('/:menuId', (req, res, next) => {
         res.status(400).send();
       } else {
         db.run('DELETE from Menu where id = $menuId',
-          {$menuId: req.menu.id},
+          { $menuId: req.menu.id },
           (error) => {
             if (error) {
               next(error);
