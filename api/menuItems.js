@@ -8,7 +8,7 @@ const sqlite3 = require('sqlite3');
 const db = new sqlite3.Database(process.env.TEST_DATABASE || './database.sqlite');
 
 menuItemsRouter.param('menuItemId', (req, res, next, menuItemId) => {
-  db.get('SELECT * FROM employee WHERE id=$id', { $id: menuItemId }, (error, menuItem) => {
+  db.get('SELECT * FROM MenuItem WHERE MenuItem.id=$menuItemId', { $menuItemId: menuItemId }, (error, menuItem) => {
     if (menuItem) {
       req.menuItem = menuItem;
       next();
@@ -57,9 +57,8 @@ menuItemsRouter.post('/', (req, res, next) => {
             next(error);
           } else {
             db.get(`SELECT * from MenuItem where MenuItem.id = ${this.lastID}`,
-              (error, row) => {
-                console.log(menuItem);
-                res.status(201).json({menuItem: row});
+              (error, menuItem) => {
+                res.status(201).json({menuItem: menuItem});
               });
           }
         });
@@ -70,15 +69,15 @@ menuItemsRouter.put('/:menuItemId', (req, res, next) => {
   const name = req.body.menuItem.name;
   const description = req.body.menuItem.description;
   const inventory = req.body.menuItem.inventory;
-  const price = req.body.menuItem.pice;
+  const price = req.body.menuItem.price;
   const menuId = req.menu.id;
 
-  if (!name || !description || !inventory || !price || !menuId) {
+  if (!name || !description || !inventory || !price ) {
     res.status(400).send();
   } else {
-    const menuItemsSql = 'UPDATE MenuItem name = $name, description = $description, ' +
+    const menuItemsSql = 'UPDATE MenuItem SET name = $name, description = $description, ' +
                          'inventory = $inventory, price = $price, ' +
-                         'menu_id = $menuId) WHERE id = $menuItemId';
+                         'menu_id = $menuId WHERE menuItem.id = $menuItemId';
 
     const menuItemsVals = {
       $name: name,
@@ -86,7 +85,7 @@ menuItemsRouter.put('/:menuItemId', (req, res, next) => {
       $inventory: inventory,
       $price: price,
       $menuId: menuId,
-      $menuItemId: req.menuItem.id
+      $menuItemId: req.params.menuItemId
     };
 
     db.run(menuItemsSql, menuItemsVals,
@@ -94,14 +93,13 @@ menuItemsRouter.put('/:menuItemId', (req, res, next) => {
           if (error) {
             next(error);
           } else {
-            db.get(`SELECT * from MenuItem where MenuItem.id = ${req.menuItem.id}`,
+            db.get(`SELECT * FROM MenuItem where MenuItem.id = ${req.params.menuItemId}`,
               (error, menuItem) => {
-                console.log(menuItem);
-                res.status(201).json({menuItem: menuItem});
+                res.status(200).json({menuItem: menuItem});
               });
           }
         });
-    }
+      }
 });
 
 menuItemsRouter.delete('/:menuItemId', (req, res, next) => {
